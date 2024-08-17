@@ -129,8 +129,8 @@ int main(void)
     /* USER CODE BEGIN 3 */
 		
 		//Measure while(1) interval in microseconds.
-		double interval = fChrono_IntervalUs(&chronoInterval);
-		printf("Interval: %f us.\n", interval);
+		timeUs_t interval = fChrono_IntervalUs(&chronoInterval);
+		printf("Interval: %u us.\n", interval);
 		
 		//Start chronoElapsed object.
 		//MEASUREMENT TAG: A
@@ -143,14 +143,14 @@ int main(void)
 			printf("chrono is not timed out.\n");
 		}
 		
-		//Create a time delay of 500 microseconds.
+		//Create a time delay of 500 milliseconds.
 		fChrono_DelayMs(500);
 		LED_TOGGLE_();
 		
 		//MEASUREMENT TAG: B
 		//Measure time between (MEASUREMENT TAG: A) and (MEASUREMENT TAG: B) in microseconds.
-		double elapsed = fChrono_ElapsedUs(&chronoElapsed);
-		printf("elapsed: %f us.\n", elapsed);
+		timeUs_t elapsed = fChrono_ElapsedUs(&chronoElapsed);
+		printf("elapsed: %u us.\n", elapsed);
 		
   }
   /* USER CODE END 3 */

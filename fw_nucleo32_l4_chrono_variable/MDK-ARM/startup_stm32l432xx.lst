@@ -602,11 +602,11 @@ ARM Macro Assembler    Page 10
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
 interwork --depend=fw_nucleo32_l4_chrono_variable\startup_stm32l432xx.d -ofw_nu
 cleo32_l4_chrono_variable\startup_stm32l432xx.o -I.\RTE\_fw_nucleo32_l4_chrono_
-variable -IC:\Users\ASUS\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Inc
-lude -IC:\Users\ASUS\AppData\Local\Arm\Packs\Keil\STM32L4xx_DFP\2.6.2\Drivers\C
-MSIS\Device\ST\STM32L4xx\Include --predefine="__UVISION_VERSION SETA 538" --pre
-define="_RTE_ SETA 1" --predefine="STM32L432xx SETA 1" --predefine="_RTE_ SETA 
-1" --list=startup_stm32l432xx.lst startup_stm32l432xx.s
+variable -IC:\Users\NoteBook\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0\CMSIS\Core
+\Include -IC:\Users\NoteBook\AppData\Local\Arm\Packs\Keil\STM32L4xx_DFP\2.6.2\D
+rivers\CMSIS\Device\ST\STM32L4xx\Include --predefine="__UVISION_VERSION SETA 53
+8" --predefine="_RTE_ SETA 1" --predefine="STM32L432xx SETA 1" --predefine="_RT
+E_ SETA 1" --list=startup_stm32l432xx.lst startup_stm32l432xx.s
 
 
 

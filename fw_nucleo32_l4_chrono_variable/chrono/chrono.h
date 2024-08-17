@@ -1,19 +1,19 @@
 /**
-	******************************************************************************
-	* @file           : chrono.h
-	* @brief          : Chrono module header file.
-	******************************************************************************
-	* @attention
-	*
-	* Copyright (c) 2024 FaraabinCo.
-	* All rights reserved.
-	*
+  ******************************************************************************
+  * @file           : chrono.h
+  * @brief          : Chrono module header file.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2024 FaraabinCo.
+  * All rights reserved.
+  *
   * This software is licensed under terms that can be found in the LICENSE file
   * in the root directory of this software component.
-	*
-	* https://faraabinco.ir/
-	* https://github.com/FaraabinCo
-	*
+  *
+  * https://faraabinco.ir/
+  * https://github.com/FaraabinCo
+  *
   ******************************************************************************
   @verbatim
   
@@ -22,11 +22,11 @@
 
   @endverbatim
   ******************************************************************************
-	*/
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __chrono_H
-#define __chrono_H
+#ifndef CHRONO_H
+#define CHRONO_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,8 +40,87 @@ extern "C" {
 #include "chrono_config.h"
 
 /* Exported defines ----------------------------------------------------------*/
+#define CHRONO_OK                     0
+#define CHRONO_ERROR_TICK_TOP_ZERO    1
+#define CHRONO_ERROR_TICK_TO_NS_ZERO  2
+#define CHRONO_ERROR_TICK_PTR_ERROR   3
+
 /* Exported macro ------------------------------------------------------------*/
+/** @defgroup TIME_MACROS Time macros
+ *  @{
+ */
+
+/**
+ * @brief Returns current tick value a the number of ticks, since the start of the tick generator.
+ *       
+ */
+#define tick_()		fChrono_GetTick()
+
+/**
+ * @brief Returns the number of microseconds passed since the initialization of the chrono module.
+ * @note This macro is not re-entrant. if this condition may be happen, user should use critical section
+ *       for prevent it.
+ */
+#define micros_()	fChrono_GetContinuousTickUs()
+
+/**
+ * @brief Returns the number of milliseconds passed since the initialization of the chrono module.
+ * @note This macro is not re-entrant. if this condition may be happen, user should use critical section
+ *       for prevent it.
+ */
+#define millis_()	fChrono_GetContinuousTickMs()
+
+/**
+ * @brief Returns the number of seconds passed since the initialization of the chrono module.
+ * @note This macro is not re-entrant. if this condition may be happen, user should use critical section
+ *       for prevent it.
+ */
+#define seconds_()	fChrono_GetContinuousTickS()
+
+/**
+ * @brief Generates a delay for the amount of time (in microseconds) specified as input parameter.
+ * 
+ */
+#define delayMicroseconds_(delay_)	fChrono_DelayUs(delay_)
+
+/**
+ * @brief Generates a delay for the amount of time (in milliseconds) specified as input parameter.
+ * 
+ */
+#define delayMilliseconds_(delay_)	fChrono_DelayMs(delay_)
+
+/**
+ * @brief Generates a delay for the amount of time (in second) specified as input parameter.
+ * 
+ */
+#define delaySeconds_(delay_)	fChrono_DelayS(delay_)
+
+/**
+ * @brief Measures elapsed time since a call to tic_().
+ * 
+ */
+#define tic_(name_) \
+  sChrono __tic_toc_##name_##__;\
+  fChrono_Start(&(__tic_toc_##name_##__))
+  
+#define tocUs_(name_) fChrono_ElapsedUs(&(__tic_toc_##name_##__))
+#define tocMs_(name_) fChrono_ElapsedMs(&(__tic_toc_##name_##__))
+#define tocS_(name_)  fChrono_ElapsedS(&(__tic_toc_##name_##__))
+
+/** @} */ //End of TIME_MACROS
+
 /* Exported types ------------------------------------------------------------*/
+/**
+  * @brief Definition of bool_t for misra compliance.
+  * 
+  */
+#ifndef bool_t
+typedef bool bool_t;
+
+#define FALSE ((bool_t)0)
+#define TRUE  ((bool_t)1)
+#endif
+
 /**
   * @brief Definition of the Chrono object.
   * 
@@ -50,17 +129,17 @@ extern "C" {
   */
 typedef struct {
   
-  bool _run;            /*!< Holds the RUN state of the chrono object.
+  bool_t _run;            /*!< Holds the RUN state of the chrono object.
                              When this parameter is false, the chrono is in stop mode, and time measurement functions will return 0.
                              This parameter is private and is set by the chrono API. Users must not change its value. */
 
-  tick_t _startTime;    /*!< Holds the start time of the chrono.
+  tick_t _startTick;    /*!< Holds the start time of the chrono.
                              This parameter is private and is set by the chrono API. Users must not change its value. */
 
   tick_t _timeout;      /*!< Holds the timeout length.
                              This parameter is private and is set by the chrono API. Users must not change its value. */
-	
-	bool _isTimeout;			/*!< Holds the timeout state of the chrono object.
+  
+  bool_t _isTimeout;      /*!< Holds the timeout state of the chrono object.
                              This parameter is private and is set by the chrono API. Users must not change its value. */
 }sChrono;
 
@@ -88,12 +167,13 @@ typedef struct {
   uint8_t fChrono_Init(tick_t tickTopValue, uint32_t tickToNsCoef, volatile tick_t *tickValue);
 
 #elif (CHRONO_TICK_TYPE == TICK_TYPE_FUNCTION)
-
+  
+  typedef tick_t(*fpTick_t)(void);
   uint8_t fChrono_Init(tick_t tickTopValue, uint32_t tickToNsCoef, tick_t(*fpTickValue)(void));
 
 #else
 
-	#error "CHRONO_TICK_TYPE must be defined"
+  #error "CHRONO_TICK_TYPE must be defined"
 
 #endif
 /** @} */ //End of INIT_FUNCTION
@@ -105,6 +185,15 @@ typedef struct {
  */
 
 /**
+ * @brief Returns the availability of corresponding tick after initialization of the chrono module.
+ * 
+ * @retval isTickAvailable: Is corresponding tick available.
+ */
+bool_t fChrono_IsTickUsAvailable(void);
+bool_t fChrono_IsTickMsAvailable(void);
+bool_t fChrono_IsTickSAvailable(void);
+
+/**
  * @brief Get current tick.
  * 
  * @retval tick: Current tick (raw)
@@ -112,11 +201,14 @@ typedef struct {
 tick_t fChrono_GetTick(void);
 
 /**
- * @brief Returns the cumulative sum of tick values converted to milliseconds since calling fChrono_Init().
- * 
- * @retval cumulativeTime: Time length since calling fChrono_Init() in milliseconds
+ * @brief Returns the amount of time converted to microseconds, milliseconds & seconds since calling fChrono_Init().
+ * @note This functions are not re-entrant. if this condition may be happen, user should use critical section
+ *       for prevent it.
+ * @retval timeLength: Time length since calling fChrono_Init() in microseconds, milliseconds & seconds
  */
+uint64_t fChrono_GetContinuousTickUs(void);
 uint64_t fChrono_GetContinuousTickMs(void);
+uint64_t fChrono_GetContinuousTickS(void);
 
 /**
  * @brief Get Tick top value.
@@ -131,6 +223,25 @@ tick_t fChrono_GetTickTopValue(void);
  * @retval tickToNsCoef: Tick-to-nanoseconds coefficient
  */
 uint32_t fChrono_GetTickToNsCoef(void);
+
+/**
+ * @brief Returns the pointer to the tick generator.
+ * 
+ * @retval tickPointer: Pointer to the tick generator.
+ */
+#if (CHRONO_TICK_TYPE == TICK_TYPE_VARIABLE)
+
+  volatile tick_t* fChrono_GetTickPointer(void);
+
+#elif (CHRONO_TICK_TYPE == TICK_TYPE_FUNCTION)
+
+  fpTick_t fChrono_GetTickPointer(void);
+
+#else
+
+  #error "CHRONO_TICK_TYPE must be defined"
+
+#endif
 
 /**
  * @brief Returns the maximum measurable time interval that can be counted by the tick generator until it reaches its top value.
@@ -159,6 +270,7 @@ timeUs_t fChrono_GetMaxMeasurableTimeUs(void);
 timeS_t fChrono_TimeSpanS(tick_t startTick, tick_t endTick);
 timeMs_t fChrono_TimeSpanMs(tick_t startTick, tick_t endTick);
 timeUs_t fChrono_TimeSpanUs(tick_t startTick, tick_t endTick);
+tick_t fChrono_TimeSpanTick(tick_t startTick, tick_t endTick);
 
 /** @} */ //End of TIME_SPAN
 
@@ -197,9 +309,9 @@ void fChrono_Stop(sChrono * const me);
  *  @{
  */
 
-timeS_t fChrono_ElapsedS(sChrono * const me);
-timeMs_t fChrono_ElapsedMs(sChrono * const me);
-timeUs_t fChrono_ElapsedUs(sChrono * const me);
+timeS_t fChrono_ElapsedS(sChrono const * const me);
+timeMs_t fChrono_ElapsedMs(sChrono const * const me);
+timeUs_t fChrono_ElapsedUs(sChrono const * const me);
 
 /** @} */ //End of ELAPSED
 
@@ -223,7 +335,7 @@ timeUs_t fChrono_LeftUs(sChrono * const me);
 void fChrono_StartTimeoutS(sChrono * const me, timeS_t timeout);
 void fChrono_StartTimeoutMs(sChrono * const me, timeMs_t timeout);
 void fChrono_StartTimeoutUs(sChrono * const me, timeUs_t timeout);
-bool fChrono_IsTimeout(sChrono * const me);
+bool_t fChrono_IsTimeout(sChrono * const me);
 
 /** @} */ //End of TIMEOUT
 
@@ -247,6 +359,6 @@ timeUs_t fChrono_IntervalUs(sChrono * const me);
 }
 #endif
 
-#endif /* __CHRONO_H */
+#endif /* CHRONO_H */
 
 /************************ Copyright (c) 2024 FaraabinCo *****END OF FILE****/
