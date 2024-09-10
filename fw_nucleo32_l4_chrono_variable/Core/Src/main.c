@@ -101,7 +101,7 @@ int main(void)
 	
 	// Initialize chrono module:
 	// Each tick is 1 microseconds and time counts from 0 to 0xFFFFFFFE, so top value is 0xFFFFFFFF
-	fChrono_Init(0xFFFFFFFF, 1000, (tick_t*)&(TIM2->CNT));
+	fChrono_Init((tick_t*)&(TIM2->CNT));
 	
 	LED_OFF_();
 	

@@ -107,7 +107,7 @@ int main(void)
 	// Initialize chrono module:
 	// Each tick is 1 microseconds and time counts from 0 to 0xFFFF, but each time the timer overflows,
 	// tickValueMSB is incremented. ChronoGetTick() returns ticks from 0 to 0xFFFFFFFE, so tick top value is 0xFFFFFFFF.
-	fChrono_Init(0xFFFFFFFF, 1000, ChronoGetTick);
+	fChrono_Init(ChronoGetTick);
 	
 	LED_OFF_();
 	
